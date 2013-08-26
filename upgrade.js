@@ -67,7 +67,9 @@ exports.register = function(commander) {
                 })
             }else{
                 console.log('No configuration file, Please check the catalog is correct!');
+                return;
             }
+            console.log('upgrade start.');
             var macro = new Array();
             var widget = new Array();
             var jsContext = new Array();
