@@ -72,6 +72,7 @@ exports.register = function(commander) {
             var widget = new Array();
             var jsContext = new Array();
             fis.util.find(root).forEach(function(filepath) {
+                //处理图片文件
                 if(fis.util.isImageFile(filepath)) {
                     fis.util.copy(filepath, projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace));
                 }
@@ -150,7 +151,7 @@ function createHTML(macro, widget, jsContext){
         for(var i = 0; i < jsContext.length; i++){
             tr += '<tr  class="error">';
             if(i == 0){
-                tr += '<td style="text-align:center;margin-left:auto;vertical-align: middle;" rowspan="' + macro.length+ '">此文件中使用了F.context，2.0不支持此功能，请替换为其他数据中心.</td>'
+                tr += '<td style="text-align:center;margin-left:auto;vertical-align: middle;" rowspan="' + jsContext.length+ '">此文件中使用了F.context，2.0不支持此功能，请替换为其他数据中心.</td>'
             }
             tr += '  <td style="max-width:500px;word-break:break-all;"> ' + jsContext[i]+ '</td>'
                 + '</tr>';
@@ -172,7 +173,7 @@ function createHTML(macro, widget, jsContext){
         for(var i = 0; i < widget.length; i++){
             tr += '<tr  class="error">';
             if(i == 0){
-                tr += '<td style="text-align:center;margin-left:auto;vertical-align: middle;" rowspan="' + macro.length+ '">此文件中使用了widget继承，请替换此功能.</td>'
+                tr += '<td style="text-align:center;margin-left:auto;vertical-align: middle;" rowspan="' + widget.length+ '">此文件中使用了widget继承，请替换此功能.</td>'
             }
             tr += '  <td style="max-width:500px;word-break:break-all;"> ' + widget[i]+ '</td>'
                 + '</tr>';
