@@ -69,7 +69,7 @@ exports.register = function(commander) {
                 console.log('No configuration file, Please check the catalog is correct!');
                 return;
             }
-            console.log('upgrade start.');
+            console.log('Upgrade process starts.');
             var macro = new Array();
             var widget = new Array();
             var jsContext = new Array();
@@ -99,6 +99,7 @@ exports.register = function(commander) {
                     if(util.detContext(content)){
                         jsContext.push(filepath);
                     }
+                    console.log('Upgrade ' + filepath +' successfully!');
                 }
             });
             if(fis.util.isDir(root + "/test")){
@@ -128,9 +129,10 @@ exports.register = function(commander) {
                 + '});';
             var configPath = projectRoot + '/fis-conf.js';
             fis.util.write(configPath, config);
-            if(macro.length >0 && widget.length > 0){
+            if(macro.length >0 || widget.length > 0 && jsContext.length > 0){
                 fis.util.write(projectRoot + '/detect.html', createHTML(macro, widget,jsContext));
             }
+            console.log('Upgrade process ends!');
         });
 };
 
@@ -144,14 +146,14 @@ function createHTML(macro, widget, jsContext){
         + '     <style>'
         + '       .container{padding-top:10px;}'
         + '       .table th{background:whiteSmoke;}'
-        + '       .table td{font-size:13px;}'
+        + '       .table td{font-size:15px;}'
         + '     </style>'
         + '   </head>';
     var tr = '';
 
     if(jsContext.length > 0){
         for(var i = 0; i < jsContext.length; i++){
-            tr += '<tr  class="error">';
+            tr += '<tr  class="info">';
             if(i == 0){
                 tr += '<td style="text-align:center;margin-left:auto;vertical-align: middle;" rowspan="' + jsContext.length+ '">此文件中使用了F.context，2.0不支持此功能，请替换为其他数据中心.</td>'
             }
@@ -173,7 +175,7 @@ function createHTML(macro, widget, jsContext){
 
     if(widget.length > 0){
         for(var i = 0; i < widget.length; i++){
-            tr += '<tr  class="error">';
+            tr += '<tr  class="warning">';
             if(i == 0){
                 tr += '<td style="text-align:center;margin-left:auto;vertical-align: middle;" rowspan="' + widget.length+ '">此文件中使用了widget继承，请替换此功能.</td>'
             }
@@ -184,8 +186,8 @@ function createHTML(macro, widget, jsContext){
 
     html += '<body>'
         +      '<div class="container">'
-        +          '<table class="table table-hover"><tbody>'
-        +               '<tr class="table-header"><th>检测功能</th><th>文件路径</th></tr>'
+        +          '<table class="table table-bordered"><tbody>'
+        +               '<tr class="table-header"><th style="text-align:center">检测功能</th><th style="text-align:center">文件路径</th></tr>'
         +                tr
         +          '</tbody></table>'
         +      '</div>'
