@@ -99,7 +99,7 @@ exports.register = function(commander) {
                     if(util.detContext(content)){
                         jsContext.push(filepath);
                     }
-                    console.log('Upgrade ' + filepath +' successfully!');
+                   console.log('Upgrade ' + filepath +' successfully!');
                 }
             });
             if(fis.util.isDir(root + "/test")){
