@@ -12,25 +12,33 @@ var fs = require('fs'),
     css = require('./lib/cssUpgrade.js'),
     tpl = require('./lib/tplUpgrade.js'),
     util = require('./lib/util.js'),
+    jsconf ='',
     _exists = fs.existsSync || pth.existsSync;
 
 exports.name = 'upgrade';
 exports.desc = 'Upgrade 1.0 - 2.0';
 exports.register = function(commander) {
     var namespace, ld, rd,
-        model = 0,
-        widgetInline = false;
+        model = 0;
 
     commander
         .option('--namespace <namespace>', 'namespace', String, 'common')
         .option('--ld <smarty left delimiter>', 'smarty left delimiter', String, '{%')
         .option('--rd <smarty right delimiter>', 'smarty right delimiter', String, '%}')
+        .option('-j --jsconf <the path of js>', 'chang the filepath', String, '')
         .action(function(options) {
-            namespace = options.namespace;
-            model = options.model;
-            ld = options.ld;
-            rd = options.rd;
             var root = fis.util.realpath(process.cwd());
+            if(options.jsconf){
+                if(fis.util.realpath(options.jsconf)){
+                    jsconf = fis.util.realpath(options.jsconf)
+                    console.log('Setting UI processing path to the file path is' + jsconf);
+                }else{
+                    console.log('The jsconf does not exist!');
+                    return;
+                }
+            }
+            rd = options.rd;
+            ld = options.ld;
             //判断是不是一个正规模块
             var xmlpath = root + '/config/fis-config.xml';
             var rootSplit = root.split('/');
@@ -56,19 +64,14 @@ exports.register = function(commander) {
                             rd = res.project.smarty.attributes().right_delimiter;
                         }
                     }
-                    if(res.project['setting']){
-                        if(res.project['setting']['WidgetInlineSyntax']){
-                            if(res.project['setting']['WidgetInlineSyntax'].attributes()['enable']){
-                                var v = res.project['setting']['WidgetInlineSyntax'].attributes()['enable'];
-                                widgetInline = (v == 'true' || v == '1');
-                            }
-                        }
-                    }
                 })
             }else{
                 console.log('No configuration file, Please check the catalog is correct!');
                 return;
             }
+            console.log('The namespace :' + namespace);
+            console.log('The smarty left delimiter :' +ld);
+            console.log('The smarty right delimiter :' +rd);
             console.log('Upgrade process starts.');
             var macro = new Array();
             var widget = new Array();
@@ -77,13 +80,13 @@ exports.register = function(commander) {
                 //处理图片文件
                 if(/.*\.(tpl|js|html|css)$/.test(filepath)){
                     var content = fis.util.read(filepath);
-                    content = js.update(content, namespace,filepath, root);
+                    content = js.update(content, namespace,filepath, root, jsconf);
                     filepath = filepath.replace(/[\/\\]+/g, '/');
-                    content = css.update(content, namespace, filepath, root);
+                    content = css.update(content, namespace, filepath, root, jsconf);
                     if(/\.tpl$/.test(filepath)){
-                        content = tpl.update(content, namespace, ld, rd, filepath, root, widgetInline);
+                        content = tpl.update(content, namespace, ld, rd, filepath, root, jsconf);
                     }
-                    filepath = projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace);
+                    filepath = projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace,jsconf);
                     fis.util.write(filepath, content);
 
                     if(/\.tpl$/.test(filepath) && util.detWidgetExtends(content, ld, rd)){
@@ -96,16 +99,16 @@ exports.register = function(commander) {
                     if(util.detContext(content)){
                         jsContext.push(filepath);
                     }
-                 //  console.log('Upgrade ' + filepath +' successfully!');
+//                   console.log('Upgrade ' + filepath +' successfully!');
                 }else{
-                    fis.util.copy(filepath, projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace));
+                    fis.util.copy(filepath, projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace, jsconf));
                 }
             });
             if(fis.util.isDir(root + "/test")){
                 fis.util.find(root + "/test").forEach(function(filepath) {
                     var content = fis.util.read(filepath);
                     filepath = filepath.replace(/[\/\\]+/g, '/');
-                    filepath = projectRoot + '/test/' + util.getStandardPath(filepath.replace(root + '/test/', ''), namespace);
+                    filepath = projectRoot + '/test/' + util.getStandardPath(filepath.replace(root + '/test/', ''), namespace, jsconf);
                     fis.util.write(filepath, content);
                 });
             }
@@ -120,7 +123,7 @@ exports.register = function(commander) {
             fis.util.find(root + "/config", /.*\.(conf)$/).forEach(function(filepath) {
                 var content = fis.util.read(filepath);
                 filepath = filepath.replace(/[\/\\]+/g, '/');
-                filepath = projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace);
+                filepath = projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace, jsconf);
                 fis.util.write(filepath, content);
             });
             var config = 'fis.config.merge({\n'
