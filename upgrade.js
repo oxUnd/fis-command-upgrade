@@ -75,9 +75,6 @@ exports.register = function(commander) {
             var jsContext = new Array();
             fis.util.find(root).forEach(function(filepath) {
                 //处理图片文件
-                if(fis.util.isImageFile(filepath)) {
-                    fis.util.copy(filepath, projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace));
-                }
                 if(/.*\.(tpl|js|html|css)$/.test(filepath)){
                     var content = fis.util.read(filepath);
                     content = js.update(content, namespace,filepath, root);
@@ -99,7 +96,9 @@ exports.register = function(commander) {
                     if(util.detContext(content)){
                         jsContext.push(filepath);
                     }
-                   console.log('Upgrade ' + filepath +' successfully!');
+                 //  console.log('Upgrade ' + filepath +' successfully!');
+                }else{
+                    fis.util.copy(filepath, projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace));
                 }
             });
             if(fis.util.isDir(root + "/test")){
