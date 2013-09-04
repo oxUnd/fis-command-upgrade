@@ -69,15 +69,16 @@ exports.register = function(commander) {
                 console.log('No configuration file, Please check the catalog is correct!');
                 return;
             }
-            console.log('The namespace :' + namespace);
-            console.log('The smarty left delimiter :' +ld);
-            console.log('The smarty right delimiter :' +rd);
+            console.log('The namespace : ' + namespace);
+            console.log('The smarty left delimiter : ' +ld);
+            console.log('The smarty right delimiter : ' +rd);
             console.log('Upgrade process starts.');
             var macro = new Array();
             var widget = new Array();
             var jsContext = new Array();
+            process.stdout.write('loading');
             fis.util.find(root).forEach(function(filepath) {
-                //处理图片文件
+                process.stdout.write('.');
                 if(/.*\.(tpl|js|html|css)$/.test(filepath)){
                     var content = fis.util.read(filepath);
                     content = js.update(content, namespace,filepath, root, jsconf);
@@ -101,31 +102,34 @@ exports.register = function(commander) {
                     }
 //                   console.log('Upgrade ' + filepath +' successfully!');
                 }else{
+                    if(pth.basename(filepath) == 'fis-config.xml'){
+                        return;
+                    }
                     fis.util.copy(filepath, projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace, jsconf));
                 }
             });
-            if(fis.util.isDir(root + "/test")){
-                fis.util.find(root + "/test").forEach(function(filepath) {
-                    var content = fis.util.read(filepath);
-                    filepath = filepath.replace(/[\/\\]+/g, '/');
-                    filepath = projectRoot + '/test/' + util.getStandardPath(filepath.replace(root + '/test/', ''), namespace, jsconf);
-                    fis.util.write(filepath, content);
-                });
-            }
-            if(fis.util.isDir(root + "/plugin")){
-                fis.util.find(root + "/plugin").forEach(function(filepath) {
-                    var content = fis.util.read(filepath);
-                    filepath = filepath.replace(/[\/\\]+/g, '/');
-                    filepath = filepath.replace(root, projectRoot);
-                    fis.util.write(filepath, content);
-                });
-            }
-            fis.util.find(root + "/config", /.*\.(conf)$/).forEach(function(filepath) {
-                var content = fis.util.read(filepath);
-                filepath = filepath.replace(/[\/\\]+/g, '/');
-                filepath = projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace, jsconf);
-                fis.util.write(filepath, content);
-            });
+//            if(fis.util.isDir(root + "/test")){
+//                fis.util.find(root + "/test").forEach(function(filepath) {
+//                    var content = fis.util.read(filepath);
+//                    filepath = filepath.replace(/[\/\\]+/g, '/');
+//                    filepath = projectRoot + '/test/' + util.getStandardPath(filepath.replace(root + '/test/', ''), namespace, jsconf);
+//                    fis.util.write(filepath, content);
+//                });
+//            }
+//            if(fis.util.isDir(root + "/plugin")){
+//                fis.util.find(root + "/plugin").forEach(function(filepath) {
+//                    var content = fis.util.read(filepath);
+//                    filepath = filepath.replace(/[\/\\]+/g, '/');
+//                    filepath = filepath.replace(root, projectRoot);
+//                    fis.util.write(filepath, content);
+//                });
+//            }
+//            fis.util.find(root + "/config", /.*\.(conf)$/).forEach(function(filepath) {
+//                var content = fis.util.read(filepath);
+//                filepath = filepath.replace(/[\/\\]+/g, '/');
+//                filepath = projectRoot + '/' + util.getStandardPath(filepath.replace(root + '/', ''), namespace, jsconf);
+//                fis.util.write(filepath, content);
+//            });
             var config = 'fis.config.merge({\n'
                 + '      namespace : \'' + namespace +'\',\n'
                 + '});';
@@ -134,7 +138,7 @@ exports.register = function(commander) {
             if(macro.length >0 || widget.length > 0 && jsContext.length > 0){
                 fis.util.write(projectRoot + '/detect.html', createHTML(macro, widget,jsContext));
             }
-            console.log('Upgrade process ends!');
+            console.log('\nUpgrade process ends!');
         });
 };
 
