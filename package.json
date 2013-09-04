@@ -1,6 +1,6 @@
 {
   "name": "fis-command-upgrade",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "This tool can help you upgrade your project from FIS-1.x to FIS-2.x.",
   "main": "upgrade.js",
   "repository": {
