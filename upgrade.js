@@ -25,7 +25,7 @@ exports.register = function(commander) {
         .option('--namespace <namespace>', 'namespace', String, 'common')
         .option('--ld <smarty left delimiter>', 'smarty left delimiter', String, '{%')
         .option('--rd <smarty right delimiter>', 'smarty right delimiter', String, '%}')
-        .option('-j --jsconf <the path of js>', 'chang the filepath', String, '')
+        .option('-j --jsconf <the path of js>', 'change the filepath', String, '')
         .action(function(options) {
             var root = fis.util.realpath(process.cwd());
             if(options.jsconf){
